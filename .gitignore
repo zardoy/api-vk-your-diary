@@ -1,0 +1,30 @@
+# temp
+/local-tests
+/tests/last-db-change
+
+# local dotfiles
+.env
+.envrc
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Deps
+/node_modules
+/.pnp
+.pnp.js
+
+# Windows
+debug.log
+
+# Mac
+.DS_Store
+
+# Logs
+logs
+*.log*
+
+# misc
+/coverage
+/build
