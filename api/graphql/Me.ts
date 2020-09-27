@@ -2,6 +2,9 @@ import { schema } from "nexus";
 import { v1 as uuidv1 } from "uuid";
 import { throwIfNoGroupAccess } from "../helpers";
 
+const JOINED_GROUPS_LIMIT = 20;
+const GROUP_MEMBERS_LIMIT = 100;
+
 schema.extendType({
     type: "Query",
     definition(t) {
@@ -67,6 +70,24 @@ schema.extendType({
                 ) {
                     throw new Error(`You has already joined this group.`);
                 }
+                if (
+                    (await prisma.member.count({
+                        where: {
+                            userId
+                        }
+                    })) >= JOINED_GROUPS_LIMIT
+                ) {
+                    throw new Error(`You have exceeded the groups limit (${JOINED_GROUPS_LIMIT}).`);
+                }
+                if (
+                    (await prisma.member.count({
+                        where: {
+                            groupId: dedicatedGroup.id
+                        }
+                    })) >= GROUP_MEMBERS_LIMIT
+                ) {
+                    throw new Error(`The group has exceeded the limit of members (${GROUP_MEMBERS_LIMIT}).`);
+                }
                 await prisma.member.create({
                     data: {
                         dedicatedGroup: { connect: { id: dedicatedGroup.id } },
@@ -114,6 +135,15 @@ schema.extendType({
             async resolve(_root, { isModerated, groupName, description, enableInviteLink }, { vk_params, db: prisma }) {
                 if (!vk_params) throw new TypeError("Not auth.");
                 const userId = vk_params.user_id;
+                if (
+                    (await prisma.member.count({
+                        where: {
+                            userId
+                        }
+                    })) >= JOINED_GROUPS_LIMIT
+                ) {
+                    throw new Error(`You have exceeded the groups limit (${JOINED_GROUPS_LIMIT}).`);
+                }
                 await prisma.group.create({
                     data: {
                         isModerated,
