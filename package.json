@@ -1,0 +1,29 @@
+{
+    "name": "api-vk-your-diary",
+    "version": "1.0.0",
+    "main": "index.js",
+    "repository": "git@github.com:zardoy/api-vk-your-diary.git",
+    "author": "Vitaly Turovsky <vital2580@icloud.com>",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+        "dotenv": "^8.2.0",
+        "nexus": "^0.26.1",
+        "nexus-plugin-prisma": "^0.19.0",
+        "typescript": "^4.0.3",
+        "uuid": "^8.3.0"
+    },
+    "devDependencies": {
+        "@types/pg": "^7.14.5",
+        "@types/uuid": "^8.3.0",
+        "pg": "^8.3.3",
+        "pgtools": "^0.3.0",
+        "ts-node": "^9.0.0"
+    },
+    "scripts": {
+        "dev": "nexus dev",
+        "reset-database": "ts-node ./prisma/reset-database.ts",
+        "postinstall": "prisma generate",
+        "local-postgres": "docker run --name postgres --rm --publish 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:10.12"
+    }
+}
