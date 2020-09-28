@@ -1,7 +1,6 @@
 import { use, settings, schema, server } from "nexus";
 import { prisma } from "nexus-plugin-prisma";
 import _ from "lodash";
-import cors from "cors";
 
 import * as path from "path";
 import * as dotenv from "dotenv";
@@ -12,6 +11,8 @@ dotenv.config({
     path: path.resolve(__dirname, "../prisma/.env")
 });
 
+if (!process.env.CORS_FRONTEND_DOMAIN) throw new TypeError(`Environment variable CORS_FRONTEND_DOMAIN is not provided.`);
+
 settings.change({
     schema: {
         nullable: {
@@ -19,12 +20,12 @@ settings.change({
             outputs: false
         }
     },
-    server: {
+    server: process.env.NEXUS_STAGE === "production" ? {
         cors: {
             origin: process.env.CORS_FRONTEND_DOMAIN,
             allowedHeaders: "authorization"
         }
-    }
+    } : undefined
 });
 
 interface VK_params {
