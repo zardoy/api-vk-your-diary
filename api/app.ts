@@ -1,6 +1,7 @@
-import { use, settings, schema } from "nexus";
+import { use, settings, schema, server } from "nexus";
 import { prisma } from "nexus-plugin-prisma";
 import _ from "lodash";
+import cors from "cors";
 
 import * as path from "path";
 import * as dotenv from "dotenv";
@@ -16,6 +17,12 @@ settings.change({
         nullable: {
             inputs: false,
             outputs: false
+        }
+    },
+    server: {
+        cors: {
+            origin: process.env.CORS_FRONTEND_DOMAIN,
+            allowedHeaders: "authorization"
         }
     }
 });
@@ -47,6 +54,8 @@ schema.addToContext(({ req }) => {
 
     //todo err
     if (process.env.VK_SECRET_KEY === undefined) throw new TypeError(`Environment variable VK_SECRET_KEY is not provided.`);
+
+    if (!req.headers.authorization) throw new TypeError(`Authorization header must be defined in production!`);
 
     const vkParams = new URLSearchParams(req.headers.authorization);
 
