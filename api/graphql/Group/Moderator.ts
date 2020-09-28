@@ -7,7 +7,7 @@ schema.objectType({
     rootTyping: "GroupRootTyping",
     definition(t) {
         t.field("addHometask", {
-            type: "HometaskIdOnly",
+            type: "ID",
             args: {
                 subject: schema.stringArg(),
                 text: schema.stringArg(),
@@ -126,12 +126,5 @@ schema.objectType({
                 return true;
             }
         });
-    }
-});
-
-schema.objectType({
-    name: "HometaskIdOnly",
-    definition(t) {
-        t.model("Hometask").id();
     }
 });
