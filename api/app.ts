@@ -11,6 +11,8 @@ dotenv.config({
     path: path.resolve(__dirname, "../prisma/.env")
 });
 
+if (!process.env.VK_SECRET_KEY) throw new TypeError(`Environment variable VK_SECRET_KEY is not provided.`);
+if (!process.env.VK_SERVICE_TOKEN) throw new Error("Env variable VK_SERVICE_TOKEN is not defined.");
 if (process.env.NEXUS_STAGE === "production" && process.env.CORS_FRONTEND_DOMAIN)
     throw new TypeError(`Environment variable CORS_FRONTEND_DOMAIN is not provided in prod.`);
 
@@ -54,9 +56,6 @@ schema.addToContext(({ req }) => {
         };
     };
 
-    //todo err
-    if (process.env.VK_SECRET_KEY === undefined) throw new TypeError(`Environment variable VK_SECRET_KEY is not provided.`);
-
     if (!req.headers.authorization) throw new TypeError(`Authorization header must be defined in production!`);
 
     const vkParams = new URLSearchParams(req.headers.authorization);
@@ -68,7 +67,7 @@ schema.addToContext(({ req }) => {
     vkParams.sort();
 
     const paramsHash = crypto
-        .createHmac("sha256", process.env.VK_SECRET_KEY)
+        .createHmac("sha256", process.env.VK_SECRET_KEY!)
         .update(vkParams.toString())
         .digest()
         .toString("base64")

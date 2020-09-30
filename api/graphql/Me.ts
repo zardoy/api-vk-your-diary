@@ -34,17 +34,10 @@ schema.extendType({
                     };
                 });
                 if (!joinedGroups.length) return [];
-                if (!process.env.VK_SERVICE_TOKEN) throw new Error("Env variable VK_SERVICE_TOKEN is not defined.");
-                const vk = new VK({
-                    token: process.env.VK_SERVICE_TOKEN
-                });
-                // todo check order
-                const userAvatarsFromVk = await vk.api.users.get({
-                    user_ids: joinedGroups.map(({ ownerId }) => ownerId),
-                    fields: ["photo_50"]
-                });
+
+                const userSmallAvatars = await getUserAvatars_50(joinedGroups.map(({ ownerId }) => ownerId));
                 for (let i in joinedGroups) {
-                    joinedGroups[i].ownerSmallAvatar = userAvatarsFromVk[i].photo_50 || null;
+                    joinedGroups[i].ownerSmallAvatar = userSmallAvatars[joinedGroups[i].ownerId];
                     joinedGroups[i].membersCount = await prisma.member.count({
                         where: {
                             groupId: joinedGroups[i].id
@@ -56,6 +49,19 @@ schema.extendType({
         });
     }
 });
+
+const getUserAvatars_50 = async (userIds: string[]): Promise<{ [userId: string]: string | null; }> => {
+    const vk = new VK({
+        token: process.env.VK_SERVICE_TOKEN!
+    });
+    const userAvatarsFromVk = await vk.api.users.get({
+        user_ids: userIds,
+        fields: ["photo_50"]
+    });
+    return userAvatarsFromVk.reduce((prevObj, { photo_50, id: userId }) => {
+        return { ...prevObj, [userId]: photo_50 || null };
+    }, {} as Record<string, string | null>);
+};
 
 schema.extendType({
     type: "Mutation",
