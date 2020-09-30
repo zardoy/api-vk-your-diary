@@ -24,7 +24,7 @@
         "ts-node": "^9.0.0"
     },
     "scripts": {
-        "start": "node .nexus/build/api",
+        "start": "node .nexus/build",
         "build": "nexus build",
         "dev": "nexus dev",
         "reset-database": "ts-node ./prisma/reset-database.ts",
