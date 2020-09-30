@@ -1,7 +1,3 @@
-# temp
-/local-tests
-/tests/last-db-change
-
 # local dotfiles
 .env
 .envrc
@@ -11,7 +7,7 @@
 .env.production.local
 
 # Deps
-/node_modules
+node_modules
 /.pnp
 .pnp.js
 
@@ -25,7 +21,7 @@ debug.log
 logs
 *.log*
 
-# misc
-.tmp_build
+# Misc
 /coverage
-/build
+.tmp_build
+.nexus
