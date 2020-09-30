@@ -27,7 +27,6 @@
         "start": "node .nexus/build/api",
         "build": "nexus build",
         "dev": "nexus dev",
-        "build": "nexus build",
         "reset-database": "ts-node ./prisma/reset-database.ts",
         "postinstall": "prisma generate",
         "local-postgres": "docker run --name postgres --rm --publish 5432:5432 -e POSTGRES_PASSWORD=postgres postgres:10.12"
