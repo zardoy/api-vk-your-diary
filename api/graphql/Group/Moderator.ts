@@ -6,8 +6,8 @@ schema.objectType({
     name: "GroupMutation",
     rootTyping: "GroupRootTyping",
     definition(t) {
-        t.field("addHometask", {
-            type: "ID",
+        t.int("addHometask", {
+            // todo use ID instead of Int
             args: {
                 subject: schema.stringArg(),
                 text: schema.stringArg(),
@@ -15,7 +15,7 @@ schema.objectType({
             },
             async resolve({ groupId, userId }, { subject, text }, { db: prisma }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
-                return await prisma.hometask.create({
+                return (await prisma.hometask.create({
                     data: {
                         dedicatedGroup: { connect: { id: groupId } },
                         createdBy: userId,
@@ -25,7 +25,7 @@ schema.objectType({
                     select: {
                         id: true
                     }
-                });
+                })).id;
             }
         });
         t.boolean("removeHometask", {

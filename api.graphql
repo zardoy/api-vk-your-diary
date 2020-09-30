@@ -20,7 +20,7 @@ input FileWhereUniqueInput {
 }
 
 type GroupMutation {
-  addHometask(subject: String!, text: String!): ID!
+  addHometask(subject: String!, text: String!): Int!
   editHometask(hometaskId: Int!, newText: String!): Boolean!
 
   """Returns a new token"""
