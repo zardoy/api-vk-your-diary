@@ -11,7 +11,8 @@ dotenv.config({
     path: path.resolve(__dirname, "../prisma/.env")
 });
 
-if (!process.env.CORS_FRONTEND_DOMAIN) throw new TypeError(`Environment variable CORS_FRONTEND_DOMAIN is not provided.`);
+if (process.env.NEXUS_STAGE === "production" && process.env.CORS_FRONTEND_DOMAIN)
+    throw new TypeError(`Environment variable CORS_FRONTEND_DOMAIN is not provided in prod.`);
 
 settings.change({
     schema: {
