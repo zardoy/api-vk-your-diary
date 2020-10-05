@@ -11,8 +11,7 @@ schema.extendType({
             args: {
                 id: schema.intArg()
             },
-            async resolve(_root, { id }, { db: prisma, vk_params }) {
-                if (!vk_params) throw new Error(`Not auth.`);
+            async resolve(_root, { id }, { vk_params }) {
                 return { groupId: id, userId: vk_params.user_id };
             }
         });
@@ -27,8 +26,7 @@ schema.extendType({
             args: {
                 id: schema.intArg()
             },
-            async resolve(_root, { id }, { db: prisma, vk_params }) {
-                if (!vk_params) throw new Error(`Not auth.`);
+            async resolve(_root, { id }, { vk_params }) {
                 return { groupId: id, userId: vk_params.user_id };
             }
         });

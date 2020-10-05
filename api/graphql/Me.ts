@@ -1,15 +1,18 @@
 import { schema } from "nexus";
 import { v1 as uuidv1 } from "uuid";
-import { throwIfNoGroupAccess } from "../helpers";
 import { VK } from "vk-io";
 
 const JOINED_GROUPS_LIMIT = 20;
 const GROUP_MEMBERS_LIMIT = 100;
 
+const lengthLimits = {
+    groupName: 50,
+    groupDescription: 300
+};
+
 schema.extendType({
     type: "Query",
     definition(t) {
-        // todo full refactor with group { ... }
         t.field("joinedGroups", {
             type: "JoinedGroup",
             list: true,
@@ -120,28 +123,6 @@ schema.extendType({
                 return true;
             }
         });
-        t.field("leaveGroup", {
-            type: "Boolean",
-            args: {
-                groupId: schema.intArg()
-            },
-            async resolve(_root, { groupId }, { db: prisma, vk_params }) {
-                if (!vk_params) throw new TypeError("Not auth.");
-                const userId = vk_params.user_id;
-                await throwIfNoGroupAccess({ groupId, userId, prisma, level: "member" });
-                const group = (await prisma.group.findOne({
-                    where: { id: groupId },
-                    select: { ownerId: true }
-                }))!;
-                if (group.ownerId === userId) throw new Error(`You need to transfer owner first.`);
-                await prisma.member.delete({
-                    where: {
-                        groupId_userId: { groupId, userId }
-                    }
-                });
-                return true;
-            }
-        });
         t.field("createGroup", {
             type: "String",
             nullable: true,
@@ -149,14 +130,15 @@ schema.extendType({
             args: {
                 isModerated: schema.booleanArg(),
                 groupName: schema.stringArg(),
-                description: schema.stringArg(),
+                description: schema.stringArg({ description: "Required but can be empty" }),
                 enableInviteLink: schema.booleanArg()
             },
             async resolve(_root, { isModerated, groupName, description, enableInviteLink }, { vk_params, db: prisma }) {
                 if (!vk_params) throw new TypeError("Not auth.");
                 if (!groupName) throw new Error("Group name can't be empty.");
                 // todo
-                if (groupName.length > 50) throw new Error("Group name too large.");
+                if (groupName.length > lengthLimits.groupName) throw new Error(`Group name is too large.`);
+                if (description.length > lengthLimits.groupDescription) throw new Error(`Group description is too large.`);
                 const userId = vk_params.user_id;
                 if (
                     (await prisma.member.count({

@@ -20,15 +20,13 @@ input FileWhereUniqueInput {
 }
 
 type GroupMutation {
-  addHometask(subject: String!, text: String!): Int!
-  editHometask(hometaskId: Int!, newText: String!): Boolean!
-
   """Returns a new token"""
   generateNewInviteToken: String!
+  homework: HomeworkMutation!
 
   """Only owner can kick moderators"""
   kickMember(memberIdToKick: String!): Boolean!
-  removeHometask(hometaskId: Int!): Boolean!
+  leaveForever: Boolean!
 
   """
   This action will preserve moderator status to the user and will give moderator s to the new owner as well.
@@ -53,6 +51,12 @@ type Hometask {
   updatedAt: DateTime
 }
 
+type HomeworkMutation {
+  add(subject: String!, text: String!): Int!
+  edit(hometaskId: Int!, newText: String!): Boolean!
+  remove(hometaskId: Int!): Boolean!
+}
+
 type JoinedGroup {
   id: Int!
   isModerator: Boolean!
@@ -69,10 +73,15 @@ scalar Json
 
 type Mutation {
   """Return an invite token, if appropriate arg is true."""
-  createGroup(description: String!, enableInviteLink: Boolean!, groupName: String!, isModerated: Boolean!): String
+  createGroup(
+    """Required but can be empty"""
+    description: String!
+    enableInviteLink: Boolean!
+    groupName: String!
+    isModerated: Boolean!
+  ): String
   group(id: Int!): GroupMutation!
   joinGroup(inviteToken: String!): Boolean!
-  leaveGroup(groupId: Int!): Boolean!
 }
 
 type Query {

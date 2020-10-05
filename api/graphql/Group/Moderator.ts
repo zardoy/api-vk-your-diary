@@ -1,80 +1,14 @@
 import { schema } from "nexus";
 import { v1 as uuidv1 } from "uuid";
+
 import { throwIfNoGroupAccess } from "../../helpers";
 
-schema.objectType({
-    name: "GroupMutation",
-    rootTyping: "GroupRootTyping",
+schema.extendType({
+    type: "GroupMutation",
     definition(t) {
-        t.int("addHometask", {
-            // todo use ID instead of Int
-            args: {
-                subject: schema.stringArg(),
-                text: schema.stringArg(),
-                // filesId: schema.
-            },
-            async resolve({ groupId, userId }, { subject, text }, { db: prisma }) {
-                await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
-                return (await prisma.hometask.create({
-                    data: {
-                        dedicatedGroup: { connect: { id: groupId } },
-                        createdBy: userId,
-                        subject,
-                        text
-                    },
-                    select: {
-                        id: true
-                    }
-                })).id;
-            }
-        });
-        t.boolean("removeHometask", {
-            args: {
-                hometaskId: schema.intArg()
-            },
-            async resolve({ groupId, userId }, { hometaskId }, { db: prisma }) {
-                await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
-                if (
-                    ((await prisma.hometask.findOne({
-                        where: {
-                            id: hometaskId
-                        },
-                        select: { groupId: true }
-                    })) || { groupId: null }).groupId !== groupId
-                ) {
-                    // todo norm err msg
-                    throw new Error("Can't delete hometask");
-                }
-                await prisma.hometask.delete({
-                    where: { id: hometaskId }
-                });
-                return true;
-            }
-        });
-        t.boolean("editHometask", {
-            args: {
-                hometaskId: schema.intArg(),
-                newText: schema.stringArg()
-            },
-            async resolve({ groupId, userId }, { hometaskId, newText }, { db: prisma }) {
-                await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
-                if (
-                    ((await prisma.hometask.findOne({
-                        where: {
-                            id: hometaskId
-                        },
-                        select: { groupId: true }
-                    })) || { groupId: null }).groupId !== groupId
-                ) {
-                    // todo norm err msg
-                    throw new Error("Can't edit hometask");
-                }
-                await prisma.hometask.update({
-                    where: { id: hometaskId },
-                    data: { text: newText }
-                });
-                return true;
-            }
+        t.field("homework", {
+            type: "HomeworkMutation",
+            resolve: ({ groupId, userId }) => ({ groupId, userId })
         });
         t.string("generateNewInviteToken", {
             description: "Returns a new token",
@@ -128,3 +62,70 @@ schema.objectType({
         });
     }
 });
+
+schema.objectType({
+    name: "HomeworkMutation",
+    rootTyping: "GroupRootTyping",
+    definition(t) {
+        t.int("add", {
+            // todo use ID instead of Int
+            args: {
+                subject: schema.stringArg(),
+                text: schema.stringArg(),
+                // filesId: schema.
+            },
+            async resolve({ groupId, userId }, { subject, text }, { db: prisma }) {
+                await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
+                return (await prisma.hometask.create({
+                    data: {
+                        dedicatedGroup: { connect: { id: groupId } },
+                        createdBy: userId,
+                        subject,
+                        text
+                    },
+                    select: {
+                        id: true
+                    }
+                })).id;
+            }
+        });
+        t.boolean("remove", {
+            args: {
+                hometaskId: schema.intArg()
+            },
+            async resolve({ groupId, userId }, { hometaskId }, { db: prisma }) {
+                await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
+                await throwIfNoHometaskInGroup({ groupId, hometaskId, prisma });
+                await prisma.hometask.delete({
+                    where: { id: hometaskId }
+                });
+                return true;
+            }
+        });
+        t.boolean("edit", {
+            args: {
+                hometaskId: schema.intArg(),
+                newText: schema.stringArg()
+            },
+            async resolve({ groupId, userId }, { hometaskId, newText }, { db: prisma }) {
+                await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
+                await throwIfNoHometaskInGroup({ groupId, hometaskId, prisma });
+                await prisma.hometask.update({
+                    where: { id: hometaskId },
+                    data: { text: newText }
+                });
+                return true;
+            }
+        });
+    }
+});
+
+const throwIfNoHometaskInGroup = async ({ groupId, prisma, hometaskId }: { groupId: number; prisma: NexusContext["db"]; hometaskId: number; }) => {
+    const hometask = await prisma.hometask.findOne({
+        where: {
+            id: hometaskId
+        },
+        select: { groupId: true }
+    });
+    if (!hometask || hometask.groupId !== groupId) throw new Error(`This hometask doesn't exist in that group.`);
+};
