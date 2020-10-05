@@ -8,8 +8,7 @@ CREATE TABLE "Group" (
     --null if turned off in settings
     "inviteToken" TEXT,
     "isModerated" BOOLEAN NOT NULL,
-    "wallpapersUrl" TEXT
-    -- "advancedConfig" json
+    "advancedConfig" JSONB
     -- "apiKey" TEXT
 );
 
@@ -37,6 +36,7 @@ CREATE TABLE "Member" (
 CREATE TABLE "Hometask" (
     "id" SERIAL PRIMARY KEY,
     "groupId" INTEGER NOT NULL REFERENCES "Group" ON DELETE CASCADE,
+    "givedTo" DATE NOT NULL,
     "createdBy" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3),
     "subject" TEXT NOT NULL,

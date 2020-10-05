@@ -72,16 +72,21 @@ schema.objectType({
             args: {
                 subject: schema.stringArg(),
                 text: schema.stringArg(),
+                date: schema.arg({ type: "DateTime" })
                 // filesId: schema.
             },
-            async resolve({ groupId }, { subject, text }, { db: prisma, userId }) {
+            async resolve({ groupId }, { subject, text, date: clientDate }, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
+                const date = new Date(clientDate);
+                if (!isFinite(date.getTime())) throw new Error(`Invalid date.`);
+                if (+date < new Date().getTime()) throw new Error(`Can't write hometask to previous date.`);
                 return (await prisma.hometask.create({
                     data: {
                         dedicatedGroup: { connect: { id: groupId } },
                         createdBy: userId,
                         subject,
-                        text
+                        text,
+                        givedTo: date
                     },
                     select: {
                         id: true

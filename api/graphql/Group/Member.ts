@@ -21,9 +21,16 @@ schema.objectType({
             }
         });
         t.list.string("groupMembers", {
-            // nullable: true, can be hidden in the future?
+            // nullable: true, todo make owner possible to hide that
+            description: "Query this only if isModerator is true from joinedGroups query",
             async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "member" });
+                const usersGroup = (await prisma.group.findOne({
+                    where: {
+                        id: groupId
+                    }
+                }))!;
+                if (!usersGroup.isModerated) throw new Error(`This query allowed only in moderated groups.`);
                 return (await prisma.member.findMany({
                     where: {
                         groupId
