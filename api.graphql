@@ -59,6 +59,8 @@ type HomeworkMutation {
 
 type JoinedGroup {
   id: Int!
+
+  """Always false if group isn't moderated"""
   isModerator: Boolean!
   membersCount: Int!
   name: String!
