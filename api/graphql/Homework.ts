@@ -9,8 +9,8 @@ schema.extendType({
             type: "Hometask",
             list: true,
             args: {
-                // user can use vpn so its better to request date from client
-                clientDate: schema.arg({ type: "DateTime" }),
+                /* user can use vpn so its better to request date from client */
+                clientDate: schema.stringArg(),
                 offset: schema.intArg(),
                 first: schema.intArg()
             },
@@ -34,7 +34,7 @@ schema.extendType({
             type: "Hometask",
             list: true,
             args: {
-                date: schema.arg({ type: "DateTime" })
+                date: schema.stringArg()
             },
             async resolve({ groupId }, { date: clientDate }, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "member" });

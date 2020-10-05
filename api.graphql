@@ -40,8 +40,8 @@ type GroupQuery {
 
   """Query this only if isModerator is true from joinedGroups query"""
   groupMembers: [String!]!
-  homeworkByDay(date: DateTime!): [Hometask!]!
-  homeworkFromToday(clientDate: DateTime!, first: Int!, offset: Int!): [Hometask!]!
+  homeworkByDay(date: String!): [Hometask!]!
+  homeworkFromToday(clientDate: String!, first: Int!, offset: Int!): [Hometask!]!
   knownSubjects: [String!]!
 }
 
@@ -55,7 +55,7 @@ type Hometask {
 }
 
 type HomeworkMutation {
-  add(date: DateTime!, subject: String!, text: String!): Int!
+  add(date: String!, subject: String!, text: String!): Int!
   edit(hometaskId: Int!, newText: String!): Boolean!
   remove(hometaskId: Int!): Boolean!
 }

@@ -72,7 +72,7 @@ schema.objectType({
             args: {
                 subject: schema.stringArg(),
                 text: schema.stringArg(),
-                date: schema.arg({ type: "DateTime" })
+                date: schema.stringArg()
                 // filesId: schema.
             },
             async resolve({ groupId }, { subject, text, date: clientDate }, { db: prisma, userId }) {
