@@ -42,6 +42,7 @@ type GroupQuery {
   groupMembers: [String!]!
   homeworkByDay(date: DateTime!): [Hometask!]!
   homeworkFromToday(clientDate: DateTime!, first: Int!, offset: Int!): [Hometask!]!
+  knownSubjects: [String!]!
 }
 
 type Hometask {
