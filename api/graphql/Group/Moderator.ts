@@ -8,11 +8,11 @@ schema.extendType({
     definition(t) {
         t.field("homework", {
             type: "HomeworkMutation",
-            resolve: ({ groupId, userId }) => ({ groupId, userId })
+            resolve: ({ groupId }) => ({ groupId })
         });
         t.string("generateNewInviteToken", {
             description: "Returns a new token",
-            async resolve({ groupId, userId }, _args, { db: prisma }) {
+            async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
                 const group = (await prisma.group.findOne({
                     where: { id: groupId }
@@ -33,7 +33,7 @@ schema.extendType({
             args: {
                 memberIdToKick: schema.stringArg()
             },
-            async resolve({ groupId, userId }, { memberIdToKick }, { db: prisma }) {
+            async resolve({ groupId }, { memberIdToKick }, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
                 const group = (await prisma.group.findOne({
                     where: {
@@ -74,7 +74,7 @@ schema.objectType({
                 text: schema.stringArg(),
                 // filesId: schema.
             },
-            async resolve({ groupId, userId }, { subject, text }, { db: prisma }) {
+            async resolve({ groupId }, { subject, text }, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
                 return (await prisma.hometask.create({
                     data: {
@@ -93,7 +93,7 @@ schema.objectType({
             args: {
                 hometaskId: schema.intArg()
             },
-            async resolve({ groupId, userId }, { hometaskId }, { db: prisma }) {
+            async resolve({ groupId }, { hometaskId }, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
                 await throwIfNoHometaskInGroup({ groupId, hometaskId, prisma });
                 await prisma.hometask.delete({
@@ -107,7 +107,7 @@ schema.objectType({
                 hometaskId: schema.intArg(),
                 newText: schema.stringArg()
             },
-            async resolve({ groupId, userId }, { hometaskId, newText }, { db: prisma }) {
+            async resolve({ groupId }, { hometaskId, newText }, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "moderator" });
                 await throwIfNoHometaskInGroup({ groupId, hometaskId, prisma });
                 await prisma.hometask.update({

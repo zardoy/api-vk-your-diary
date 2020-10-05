@@ -11,8 +11,8 @@ schema.extendType({
             args: {
                 id: schema.intArg()
             },
-            async resolve(_root, { id }, { vk_params }) {
-                return { groupId: id, userId: vk_params.user_id };
+            async resolve(_root, { id }) {
+                return { groupId: id };
             }
         });
     }
@@ -26,14 +26,13 @@ schema.extendType({
             args: {
                 id: schema.intArg()
             },
-            async resolve(_root, { id }, { vk_params }) {
-                return { groupId: id, userId: vk_params.user_id };
+            async resolve(_root, { id }) {
+                return { groupId: id };
             }
         });
     }
 });
 
 export interface GroupRootTyping {
-    groupId: number,
-    userId: string;
+    groupId: number;
 }

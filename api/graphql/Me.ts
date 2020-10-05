@@ -16,9 +16,7 @@ schema.extendType({
         t.field("joinedGroups", {
             type: "JoinedGroup",
             list: true,
-            async resolve(_root, _args, { vk_params, db: prisma }) {
-                if (!vk_params) throw new TypeError("Not auth.");
-                const userId = vk_params.user_id;
+            async resolve(_root, _args, { db: prisma, userId }) {
                 const joinedGroups = (await prisma.member.findMany({
                     where: {
                         userId
@@ -74,10 +72,8 @@ schema.extendType({
             args: {
                 inviteToken: schema.stringArg()
             },
-            async resolve(_root, { inviteToken }, { db: prisma, vk_params }) {
-                if (!vk_params) throw new TypeError("Not auth.");
+            async resolve(_root, { inviteToken }, { db: prisma, userId }) {
                 if (!inviteToken) throw new Error("Invite token can't be empty.");
-                const userId = vk_params.user_id;
                 const dedicatedGroup = (await prisma.group.findMany({
                     where: {
                         inviteToken
@@ -133,13 +129,11 @@ schema.extendType({
                 description: schema.stringArg({ description: "Required but can be empty" }),
                 enableInviteLink: schema.booleanArg()
             },
-            async resolve(_root, { isModerated, groupName, description, enableInviteLink }, { vk_params, db: prisma }) {
-                if (!vk_params) throw new TypeError("Not auth.");
+            async resolve(_root, { isModerated, groupName, description, enableInviteLink }, { db: prisma, userId }) {
                 if (!groupName) throw new Error("Group name can't be empty.");
                 // todo
                 if (groupName.length > lengthLimits.groupName) throw new Error(`Group name is too large.`);
                 if (description.length > lengthLimits.groupDescription) throw new Error(`Group description is too large.`);
-                const userId = vk_params.user_id;
                 if (
                     (await prisma.member.count({
                         where: {
@@ -178,7 +172,9 @@ schema.objectType({
         t.model("Group").id()
             .name()
             .ownerId();
-        t.model("Member").isModerator();
+        t.boolean("isModerator", {
+            description: "Always false if group isn't moderated"
+        });
         t.int("membersCount");
         t.string("ownerSmallAvatar", {
             nullable: true

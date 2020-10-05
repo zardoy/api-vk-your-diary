@@ -62,7 +62,7 @@ schema.addToContext(({ req }) => {
     if (!isFinite(userId)) throw new TypeError(`user_id param is not a number: ${userId}`);
 
     return {
-        userId
+        userId: userId.toString()
     };
 });
 

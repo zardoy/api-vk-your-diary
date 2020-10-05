@@ -1,4 +1,5 @@
 import { schema } from "nexus";
+
 import { throwIfNoGroupAccess } from "../../helpers";
 
 // these actions are only for owner of the group
@@ -12,7 +13,7 @@ schema.extendType({
             args: {
                 newOwnerId: schema.stringArg()
             },
-            async resolve({ groupId, userId }, { newOwnerId }, { db: prisma }) {
+            async resolve({ groupId }, { newOwnerId }, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "owner" });
                 await throwIfNoGroupAccess({ groupId, userId: newOwnerId, prisma, level: "member", who: "New owner" });
                 await prisma.group.update({

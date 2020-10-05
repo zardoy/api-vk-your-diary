@@ -8,7 +8,7 @@ schema.objectType({
     definition(t) {
         t.string("groupInviteKey", {
             nullable: true,
-            async resolve({ groupId, userId }, _args, { db: prisma }) {
+            async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ userId, groupId, prisma, level: "member" });
                 return (await prisma.group.findOne({
                     where: {
@@ -22,7 +22,7 @@ schema.objectType({
         });
         t.list.string("groupMembers", {
             // nullable: true, can be hidden in the future?
-            async resolve({ groupId, userId }, _args, { db: prisma }) {
+            async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "member" });
                 return (await prisma.member.findMany({
                     where: {
@@ -35,7 +35,7 @@ schema.objectType({
             }
         });
         t.string("groupDescription", {
-            async resolve({ groupId, userId }, _args, { db: prisma }) {
+            async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "member" });
                 return (await prisma.group.findOne({
                     where: {
@@ -56,7 +56,7 @@ schema.objectType({
     definition(t) {
         t.field("leaveForever", {
             type: "Boolean",
-            async resolve({ groupId, userId }, _args, { db: prisma }) {
+            async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "member" });
                 const groupMembersCount = await prisma.member.count({
                     where: {
