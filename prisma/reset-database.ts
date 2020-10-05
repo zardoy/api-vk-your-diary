@@ -1,9 +1,9 @@
-//@ts-ignore
-import * as pgtools from "pgtools";
 import * as dotenv from "dotenv";
 import * as fs from "fs";
 import * as path from "path";
 import { Client } from "pg";
+//@ts-ignore
+import * as pgtools from "pgtools";
 
 dotenv.config({
     path: path.resolve(__dirname, "../prisma/.env")
@@ -13,7 +13,7 @@ dotenv.config({
     if (!process.env.DATABASE_URL)
         throw new TypeError(`DATABASE_URL env is not defined! Please check .env file in prisma folder!`);
     const DBConfigFromURL =
-        process.env.DATABASE_URL.match(/(?<user>\w+):(?<password>\w+)@(?<host>\w+):(?<port>\d+)\/(?<database>\w+)/);
+        process.env.DATABASE_URL.match(/(?<user>[^:]+):(?<password>[^@]+)@(?<host>[^:]+):(?<port>\d+)\/(?<database>.+)/);
     if (!DBConfigFromURL) throw new TypeError("DATABASE_URL env seems to be not a db url");
     const { database: DATABASE_NAME, ...dbConfig } =
         DBConfigFromURL.groups! as unknown as { [param: string]: string; } & { port: number; };
