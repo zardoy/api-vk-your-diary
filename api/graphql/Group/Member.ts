@@ -6,7 +6,7 @@ schema.objectType({
     name: "GroupQuery",
     rootTyping: "GroupRootTyping",
     definition(t) {
-        t.string("groupInviteKey", {
+        t.string("inviteKey", {
             nullable: true,
             async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ userId, groupId, prisma, level: "member" });
@@ -20,7 +20,7 @@ schema.objectType({
                 }))!.inviteToken;
             }
         });
-        t.list.string("groupMembers", {
+        t.list.string("members", {
             // nullable: true, todo make owner possible to hide that
             description: "Query this only if isModerator is true from joinedGroups query",
             async resolve({ groupId }, _args, { db: prisma, userId }) {
@@ -41,7 +41,7 @@ schema.objectType({
                 })).map(({ userId }) => userId);
             }
         });
-        t.string("groupDescription", {
+        t.string("description", {
             async resolve({ groupId }, _args, { db: prisma, userId }) {
                 await throwIfNoGroupAccess({ groupId, userId, prisma, level: "member" });
                 return (await prisma.group.findOne({

@@ -35,14 +35,14 @@ type GroupMutation {
 }
 
 type GroupQuery {
-  groupDescription: String!
-  groupInviteKey: String
-
-  """Query this only if isModerator is true from joinedGroups query"""
-  groupMembers: [String!]!
+  description: String!
   homeworkByDay(date: String!): [Hometask!]!
   homeworkFromToday(clientDate: String!, first: Int!, offset: Int!): [Hometask!]!
+  inviteKey: String
   knownSubjects: [String!]!
+
+  """Query this only if isModerator is true from joinedGroups query"""
+  members: [String!]!
 }
 
 type Hometask {
